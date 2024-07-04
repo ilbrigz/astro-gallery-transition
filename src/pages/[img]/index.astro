@@ -1,0 +1,38 @@
+---
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+import Layout from "../../layouts/Layout.astro";
+
+export async function getStaticPaths() {
+  const images: {
+    default: ImageMetadata;
+  }[] = await Astro.glob<{ default: ImageMetadata }>(
+    "/src/assets/*.{jpeg,jpg,png,gif}"
+  );
+
+  return images.map((image) => {
+    const imgFileName =
+      image.default.src.match(/assets\/(.*?)\.jpg/)![1] || "whatever";
+    return {
+      params: {
+        img: imgFileName,
+      },
+      props: { imageDetails: image },
+    };
+  });
+}
+
+const { img } = Astro.params;
+const { imageDetails } = Astro.props;
+---
+
+<Layout title={img}>
+  <pre>image: {img}</pre>
+  <pre>{JSON.stringify(imageDetails, null, 2)}</pre>
+  <Image transition:name={img} src={imageDetails.default} alt="" width={800} />
+  <p>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam laudantium
+    error facere non odio aspernatur ad, provident nam assumenda voluptas
+    facilis tempore similique sequi fugiat soluta nisi magni, mollitia aut!
+  </p>
+</Layout>
